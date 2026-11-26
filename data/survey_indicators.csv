@@ -1,0 +1,14 @@
+key,label,unit,cumulative
+damaged_all,Damaged or destroyed buildings (destroyed + partial + minor),libraries,yes
+destroyed,Library buildings fully destroyed (cumulative),libraries,yes
+partial,"Buildings partially destroyed, need capital repair",libraries,yes
+minor,"Buildings with minor damage (windows, doors, roof, facade)",libraries,yes
+equip_full,Total loss of equipment (MTZ),libraries,yes
+equip_partial,Partial loss of equipment (MTZ),libraries,yes
+funds_full,Total loss of collections/funds,libraries,yes
+funds_partial,Partial loss of collections/funds,libraries,yes
+restored,Damaged libraries that resumed work (cumulative),libraries,no
+staff_dismissed,Staff dismissed since full-scale invasion (cumulative),persons,yes
+damage_mln_uah,Estimated damage (minimum),mln UAH,yes
+no_library_communities,Communities (hromadas) with no working public library,communities,no
+relocated,Libraries relocated within oblast or working online,libraries,no

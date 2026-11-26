@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>War damage to Ukrainian libraries: National Library survey and attacked libraries</title>
+<style>
+:root{--bg:#f7f6f2;--card:#fff;--ink:#1c1b19;--mute:#6b6a65;--line:#e2e0d8;--grid:#e9e7df;--sea:#e8eef1;--land:#fdfcf9;--bord:#9a9890;
+--library:#2563eb;--museum:#ea580c;--theatre:#9333ea;--arts_centre:#0891b2;--community_centre:#8a9a5b;--gallery:#dc2626;--church:#78716c;--dmg:#b91c1c;--sv:#b45309}
+@media(prefers-color-scheme:dark){:root{--bg:#161614;--card:#1f1f1c;--ink:#ecebe6;--mute:#9a988f;--line:#33322e;--grid:#2a2926;--sea:#12171a;--land:#1f1f1c;--bord:#6b6a65;
+--library:#60a5fa;--museum:#fb923c;--theatre:#c084fc;--arts_centre:#22d3ee;--community_centre:#a3b377;--gallery:#f87171;--church:#a8a29e;--dmg:#f87171;--sv:#fbbf24}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{padding:18px 20px 8px}
+h1{font-size:19px;margin:0 0 4px;font-weight:650}
+header p{margin:0;color:var(--mute);max-width:80ch}
+.wrap{align-items:start;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:14px;padding:10px 20px 20px}
+@media(max-width:860px){.wrap{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px}
+#mapbox{position:relative;overflow:hidden}
+svg#map{display:block;width:100%;height:auto;aspect-ratio:16/10;touch-action:none;cursor:grab;background:var(--sea);border-radius:10px}
+svg#map.drag{cursor:grabbing}
+.tools{position:absolute;right:10px;top:10px;display:flex;flex-direction:column;gap:4px}
+.tools button{width:30px;height:30px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:6px;font-size:16px;cursor:pointer}
+#scale{position:absolute;left:12px;bottom:10px;font-size:11px;color:var(--mute);pointer-events:none}#scale i{display:block;height:5px;border:1.5px solid var(--mute);border-top:0;margin-bottom:2px}#tip{position:absolute;pointer-events:none;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:12.5px;max-width:300px;box-shadow:0 4px 14px rgba(0,0,0,.15);display:none;z-index:3}
+#tip b{display:block}
+#tip span{color:var(--mute)}
+aside{display:flex;flex-direction:column;gap:12px}
+.panel{padding:12px 14px}
+.panel h2{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--mute);margin:0 0 8px;font-weight:600}
+input[type=search]{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit}
+.leg{display:flex;align-items:center;gap:8px;width:100%;border:0;background:none;color:var(--ink);padding:4px 2px;cursor:pointer;font:inherit;text-align:left}
+.leg .dot{width:11px;height:11px;border-radius:50%;flex:none}
+.leg .bar{flex:1;height:6px;background:var(--grid);border-radius:3px;overflow:hidden}
+.leg .bar i{display:block;height:100%}
+.leg .n{width:30px;text-align:right;font-variant-numeric:tabular-nums;color:var(--mute)}
+.leg.off{opacity:.35}
+.leg:focus-visible,.tools button:focus-visible{outline:2px solid var(--library);outline-offset:1px}
+.stat{display:flex;justify-content:space-between;padding:2px 0}
+.stat span:last-child{font-variant-numeric:tabular-nums}
+#detail{min-height:70px;color:var(--mute)}
+#detail b{color:var(--ink);display:block;font-size:14px}
+#detail a{color:var(--library)}
+.note{font-size:12px;color:var(--mute);padding:0 20px 20px;max-width:100ch}
+.dmgrow{display:flex;gap:6px;font-size:12.5px;padding:1px 0}.dmgrow span:first-child{flex:1}.dmgrow span{font-variant-numeric:tabular-nums}.dmgrow .d{color:var(--dmg);width:38px;text-align:right}.dmgrow .p{width:52px;text-align:right}.sw{display:inline-block;width:11px;height:11px;border-radius:50%;border:2.2px solid var(--dmg);vertical-align:-2px;margin-right:6px}
+.yr text{font-size:10px;fill:var(--mute)}
+</style>
+</head>
+<body>
+<header>
+<h1>War damage to Ukrainian libraries: National Library survey and attacked libraries</h1>
+<p id="sub"></p>
+</header>
+<div class="wrap">
+<div id="leftcol" style="min-width:0"><div class="card" id="mapbox">
+<svg id="map" role="img" aria-label="Map of libraries, museums, theatres, arts centres and community centres"></svg>
+<div class="tools"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">&minus;</button><button id="zall" aria-label="Show all of Ukraine" title="All of Ukraine" style="font-size:11px">UA</button></div><div id="scale"></div>
+<div id="tip"></div>
+</div>
+<div class="card" id="tlbar" style="display:none;margin-top:10px;padding:10px 14px"></div></div>
+<aside>
+<div class="card panel" style="display:none"><h2>Search by name</h2><input type="search" id="q" placeholder="e.g. Франка, museum, бібліотека"></div>
+<div class="card panel"><h2>Region: <span id="rgname">Ukraine</span></h2><div id="rg"></div></div>
+<div class="card panel" style="display:none"><h2>Categories (click to toggle)</h2><div id="legend"></div></div>
+<div class="card panel"><h2>Survey: public libraries in the war, 2022–2026</h2><div id="sv"></div></div>
+<div class="card panel"><h2>Libraries: war damage</h2><div id="dmg"></div></div>
+<div class="card panel"><h2>By oblast (click to zoom)</h2><div id="oblasts"></div></div>
+<div class="card panel" style="display:none"><h2>Data completeness</h2><div id="stats"></div></div>
+<div class="card panel" style="display:none"><h2>Year each object was last edited</h2><svg id="yr" class="yr" viewBox="0 0 270 90" width="100%"></svg></div>
+<div class="card panel"><h2>Selected</h2><div id="detail">Click a point.</div></div>
+</aside>
+</div>
+<p class="note">Source: OpenStreetMap contributors (ODbL), Overpass snapshot <span id="snap"></span>. Points are element centres; polygons are reduced to a single point. This is what volunteers have tagged, not an official register: some objects carry no name, and some tags are loose (for example, an employment centre or a tax office tagged as a community centre). Borders: geoBoundaries (CC BY 4.0), simplified; Crimea, Sevastopol, Donetsk and Luhansk are shown as Ukraine, and hatching marks territory unlawfully occupied by Russia at oblast level (the front line is not drawn). Red rings mark libraries (and, in grey, a few historic churches in Lviv and Odesa, at approximate locations) individually documented in news reports as destroyed (solid) or damaged (dashed); oblast shading uses official Ministry of Culture counts, which are not tied to OSM objects, so the two are not the same dataset. There is no basemap, so grey labels mark a few towns. All data on this page are read from CSV files in the data/ folder published with it (also as one Excel workbook, war_damage_data.xlsx).</p>
+<script>
+let DATA,META,DMG,EXTRA,SV,COMM;
+function parseCSV(t){const rows=[];let r=[],f="",q=false;for(let i=0;i<t.length;i++){const c=t[i];if(q){if(c==='"'){if(t[i+1]==='"'){f+='"';i++}else q=false}else f+=c}else if(c==='"')q=true;else if(c===","){r.push(f);f=""}else if(c==="\n"||c==="\r"){if(c==="\r"&&t[i+1]==="\n")i++;r.push(f);f="";rows.push(r);r=[]}else f+=c}
+ if(f!==""||r.length){r.push(f);rows.push(r)}const H=rows.shift();return rows.filter(x=>x.length>1||x[0]!=="").map(x=>Object.fromEntries(H.map((k,i)=>[k,x[i]??""])))}
+const nz=v=>v===""||v==null?null:+v;
+async function loadData(){
+ const get=n=>fetch("data/"+n+".csv").then(r=>{if(!r.ok)throw new Error(n+" "+r.status);return r.text()}).then(parseCSV);
+ const [osm,ext,com,min,stg,ind,sob]=await Promise.all(["osm_attacked_libraries","reported_attacked_points","communities_no_library","ministry_oblast_counts","survey_stages","survey_indicators","survey_by_oblast"].map(get));
+ META={ts:""};
+ DATA=osm.map(r=>({...r,la:+r.la,lo:+r.lo,id:+r.id,y:+r.y}));
+ EXTRA=ext.map(r=>({...r,la:+r.la,lo:+r.lo,c:r.c||"library",t:"x",id:0,y:0,h:"",a:"",w:"",ap:1}));
+ COMM=com.map(r=>({n:r.n,o:r.o,s:+r.s,la:+r.la,lo:+r.lo,rv:r.rv==="yes",u:r.u}));
+ DMG={o:{},asof:min[0]?.as_of||"",src:min[0]?.source_url||""};min.forEach(r=>{DMG.o[r.oblast]=[+r.network_libraries,+r.destroyed,+r.damaged]});
+ const NC=Object.keys(stg[0]).filter(k=>!["stage","roman","data_as_of","published","url"].includes(k));
+ SV={stages:{},ind:{}};stg.forEach(r=>{SV.stages[r.stage]={r:r.roman,a:r.data_as_of,p:r.published,u:r.url,n:Object.fromEntries(NC.map(k=>[k,nz(r[k])]))}});
+ const ST=Object.keys(SV.stages).map(Number),LAST=Math.max(...ST);
+ ind.forEach(r=>{SV.ind[r.key]={l:r.label,u:r.unit,cum:r.cumulative==="yes",vals:{}}});
+ sob.forEach(r=>{const I=SV.ind[r.indicator];if(!I)return;(I.vals[r.oblast]??={})[r.stage]=+r.value});
+ const carry=(k,ob,s)=>{const v=SV.ind[k].vals[ob]||{};for(let q=s;q>=1;q--)if(v[q]!=null)return v[q];return null};
+ const al={};new Set(["destroyed","partial","minor"].flatMap(k=>Object.keys(SV.ind[k].vals))).forEach(ob=>{for(let s=1;s<=LAST;s++){const xs=["destroyed","partial","minor"].map(k=>carry(k,ob,s));if(xs.some(x=>x!=null))(al[ob]??={})[s]=xs.reduce((a,x)=>a+(x||0),0)}});
+ if(SV.ind.damaged_all)SV.ind.damaged_all.vals=al;
+ Object.entries(SV.ind).forEach(([k,I])=>{let mx=0;Object.keys(I.vals).forEach(ob=>{for(let s=1;s<=LAST;s++){const v=I.cum?carry(k,ob,s):I.vals[ob][s];if(v!=null&&v>mx)mx=v}});I.max=mx});
+}
+loadData().then(()=>{
+const CATS=[["library","Library"],["museum","Museum"],["theatre","Theatre"],["arts_centre","Arts centre"],["community_centre","Community centre / club"],["gallery","Gallery"],["church","Historic church (damaged, from news)"]];
+const LABEL=Object.fromEntries(CATS);
+const TOWNS=[["Ivano-Frankivsk",48.9226,24.7111],["Kolomyia",48.5309,25.0405],["Kalush",49.0233,24.3706],["Nadvirna",48.6333,24.5667],["Kosiv",48.3140,25.0950],["Verkhovyna",48.1550,24.8200],["Yaremche",48.4500,24.5500],["Dolyna",48.9730,23.9710],["Bolekhiv",49.0690,23.8560],["Rohatyn",49.4090,24.6100],["Halych",49.1230,24.7230],["Sniatyn",48.4480,25.5600],["Tlumach",48.8650,25.0010],["Horodenka",48.6700,25.5000]];
+const OCC={"Autonomous Republic of Crimea":"Crimea","Sevastopol":"Sevastopol","Donetsk":"Donetsk Oblast","Luhansk":"Luhansk Oblast"};
+const NS="http://www.w3.org/2000/svg", svg=document.getElementById("map"), box=document.getElementById("mapbox");
+const loMin=21.6,loMax=40.7,laMin=43.8,laMax=52.8,k=Math.cos(48.3*Math.PI/180);
+const Ww=1200,S=Ww/((loMax-loMin)*k),Hh=(laMax-laMin)*S,R=.625;
+const X=lo=>(lo-loMin)*k*S, Y=la=>(laMax-la)*S;
+const mk=(n,a,p)=>{const e=document.createElementNS(NS,n);for(const z in a)e.setAttribute(z,a[z]);(p||svg).appendChild(e);return e};
+const css=v=>`var(--${v})`;
+const defs=mk("defs",{});const pat=mk("pattern",{id:"occ",width:7,height:7,patternUnits:"userSpaceOnUse",patternTransform:"rotate(45)"},defs);mk("line",{x1:0,y1:0,x2:0,y2:7,stroke:css("mute"),"stroke-width":1.4,opacity:.45},pat);
+mk("rect",{x:-2000,y:-2000,width:6000,height:6000,fill:css("sea")});
+const gB=mk("g",{"pointer-events":"none"}), gLab=mk("g",{"pointer-events":"none"}), gGrat=mk("g",{"pointer-events":"none"});
+const gt=mk("g",{"pointer-events":"none"}), gp=mk("g",{});
+const RINGS={},DS={},dmgEls=[],svEls=[],tintEls=[],labs=[], hasData=new Set(DATA.map(d=>d.r).filter(Boolean)), bboxes={};
+function ringPath(r){let s="";for(let i=0;i<r.length;i+=2)s+=(i?"L":"M")+X(r[i]).toFixed(1)+" "+Y(r[i+1]).toFixed(1);return s+"Z"}
+function bbox(rs){let a=1e9,b=-1e9,c=1e9,d=-1e9;rs.forEach(r=>{for(let i=0;i<r.length;i+=2){a=Math.min(a,r[i]);b=Math.max(b,r[i]);c=Math.min(c,r[i+1]);d=Math.max(d,r[i+1])}});return [a,b,c,d]}
+// graticule every 1 degree
+for(let la=44;la<=52;la++)mk("line",{x1:0,x2:Ww,y1:Y(la),y2:Y(la),stroke:css("bord"),"stroke-width":.5,opacity:.25,"vector-effect":"non-scaling-stroke"},gGrat);
+for(let lo=22;lo<=40;lo++)mk("line",{y1:0,y2:Hh,x1:X(lo),x2:X(lo),stroke:css("bord"),"stroke-width":.5,opacity:.25,"vector-effect":"non-scaling-stroke"},gGrat);
+function drawBorders(B){
+ B.adm1.forEach(f=>{const d=f.r.map(ringPath).join("");
+  const occ=Object.keys(OCC).find(n=>f.n.indexOf(n)===0||f.n===n);
+  mk("path",{d,"fill-rule":"evenodd",fill:css("land"),stroke:"none"},gB);
+  if(occ)mk("path",{d,"fill-rule":"evenodd",fill:"url(#occ)",stroke:"none"},gB);
+  const tint=mk("path",{d,"fill-rule":"evenodd",fill:hasData.has(f.n)?"var(--library)":"none","fill-opacity":.07,stroke:css("bord"),"stroke-width":.8,"vector-effect":"non-scaling-stroke","stroke-linejoin":"round"},gB);tintEls.push(tint);
+  const dv=DMG.o[f.n==="Kyiv City"?"Kyiv":f.n];const dm=mk("path",{d,"fill-rule":"evenodd",fill:css("dmg"),"fill-opacity":0,stroke:"none"},gB);dmgEls.push({dm,n:dv?dv[1]+dv[2]:null});const sp=mk("path",{d,"fill-rule":"evenodd",fill:"var(--sv)","fill-opacity":0,stroke:"none"},gB);svEls.push({p:sp,n:f.n});
+  bboxes[f.n]=bbox(f.r);RINGS[f.n]=f.r;DS[f.n]=d;
+  if(f.iso==="UA-30"||f.iso==="UA-40")return;
+  const bb=bboxes[f.n];const cx=X((bb[0]+bb[1])/2),cy=Y((bb[2]+bb[3])/2),name=OCC[f.n]||(f.n==="Autonomous Republic of Crimea"?"Crimea":f.n);
+  const isOcc=!!occ&&f.iso!=="UA-40";
+  const t=mk("text",{x:cx,y:cy,"text-anchor":"middle",fill:css(isOcc?"ink":"mute"),"font-weight":isOcc?600:400},gLab);t.textContent=name;
+  let t2=null;if(isOcc){t2=mk("text",{x:cx,"text-anchor":"middle",fill:css("ink"),opacity:.8},gLab);t2.textContent="Ukraine · unlawfully occupied by Russia";}
+  labs.push({t,t2,cx,cy,big:false});});
+ buildList();applyDmg();
+ mk("path",{d:B.adm0.map(ringPath).join(""),"fill-rule":"evenodd",fill:"none",stroke:css("ink"),"stroke-width":1.6,"vector-effect":"non-scaling-stroke","stroke-linejoin":"round"},gB);
+ draw();}
+const townEls=TOWNS.map(t=>{const e=mk("text",{x:X(t[2]),y:Y(t[1]),fill:css("mute"),"font-weight":500},gt);e.textContent=t[0];const c=mk("circle",{cx:X(t[2]),cy:Y(t[1]),fill:"none",stroke:css("mute"),"stroke-width":1,"vector-effect":"non-scaling-stroke"},gt);return [e,c]});
+const pts0=[...DATA].sort((a,b)=>["community_centre","arts_centre","gallery","theatre","library","museum"].indexOf(a.c)-["community_centre","arts_centre","gallery","theatre","library","museum"].indexOf(b.c));
+const pts=pts0.map(d=>{const e=mk("circle",{cx:X(d.lo),cy:Y(d.la),fill:css(d.c),stroke:"var(--card)","stroke-width":.7,"fill-opacity":.9,"vector-effect":"non-scaling-stroke"},gp);e.d=d;return e});
+EXTRA.forEach(d=>{const e=mk("circle",{cx:X(d.lo),cy:Y(d.la),fill:css("library"),stroke:"var(--card)","stroke-width":.7,"fill-opacity":.9,"vector-effect":"non-scaling-stroke"},gp);e.d=d;pts.push(e)});
+const rings=pts.filter(e=>e.d.x).map(e=>{const r=mk("circle",{cx:X(e.d.lo),cy:Y(e.d.la),fill:"none",stroke:css("dmg"),"stroke-width":2.4,"vector-effect":"non-scaling-stroke","pointer-events":"none",...(e.d.x==="damaged"?{"stroke-dasharray":"4 2.5"}:{})},gp);r.p=e;return r});
+const commEls=COMM.map(c=>{const e=mk("circle",{cx:X(c.lo),cy:Y(c.la),fill:"var(--sv)","fill-opacity":.18,stroke:"var(--sv)","stroke-width":2,"vector-effect":"non-scaling-stroke"},gp);e.style.display="none";e.c=c;
+ return e});
+const on=new Set(CATS.map(c=>c[0])); let query="", sel=null, dmgOn=false, svOn=false;
+const base=d=>d.c==="community_centre"?3.4:4.8;
+// views
+const dlo=DATA.map(d=>d.lo),dla=DATA.map(d=>d.la);
+const rx0=X(23.45),rx1=X(25.75),ry0=Y(49.65),ry1=Y(47.62);
+const rw=Math.max(rx1-rx0,(ry1-ry0)/R)*1.04, regionVb={x:(rx0+rx1)/2-rw/2,y:(ry0+ry1)/2-rw*R/2,w:rw,h:rw*R};
+const fw=Math.max(Ww,Hh/R)*1.04, allVb={x:Ww/2-fw/2,y:Hh/2-fw*R/2,w:fw,h:fw*R};
+let vb={...allVb};
+function draw(){const px=svg.getBoundingClientRect().width||900,u=vb.w/px;
+ const rp=Math.min(1.7,Math.max(.6,Math.pow(300/vb.w,.28)));
+ pts.forEach(e=>{const d=e.d,m=(!query||(d.n||"").toLowerCase().includes(query)||LABEL[d.c].toLowerCase().includes(query));
+  e.style.display=on.has(d.c)?"":"none";e.setAttribute("r",base(d)*rp*(m&&query?1.5:1)*u);e.setAttribute("fill-opacity",query?(m?1:.12):.9);
+  e.setAttribute("stroke",e===sel?"var(--ink)":"var(--card)");e.setAttribute("stroke-width",e===sel?2:.7)});
+ commEls.forEach(e=>e.setAttribute('r',9*rp*u));
+ rings.forEach(r=>{const e=r.p;r.style.display=on.has(e.d.c)?"":"none";r.setAttribute("r",(base(e.d)*rp+3.5)*u)});
+ townEls.forEach(([t,c])=>{const show=vb.w<420;t.style.display=c.style.display=show?"":"none";t.setAttribute("font-size",11*u);t.setAttribute("x",+c.getAttribute("cx")+7*u);t.setAttribute("y",+c.getAttribute("cy")+4*u);c.setAttribute("r",2.2*u)});
+ labs.forEach(l=>{const show=vb.w>(l.big?500:260)&&vb.w<2000;l.t.style.display=show?"":"none";if(l.t2)l.t2.style.display=show?"":"none";
+  const fs=(l.big?11:10)*u;l.t.setAttribute("font-size",fs);l.t.setAttribute("y",l.cy);if(l.t2){l.t2.setAttribute("font-size",fs*.95);l.t2.setAttribute("y",l.cy+fs*1.2)}});
+ svg.setAttribute("viewBox",`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);scaleBar(u)}
+function scaleBar(u){const pxPerKm=S/111.32/u,opts=[5,10,25,50,100,200,500];let km=opts[0];for(const o of opts)if(o*pxPerKm<=140)km=o;
+ document.getElementById("scale").innerHTML=`<i style="width:${km*pxPerKm}px"></i>${km} km`}
+function clamp(){vb.x=Math.min(Math.max(vb.x,-vb.w/2),Ww-vb.w/2);vb.y=Math.min(Math.max(vb.y,-vb.h/2),Hh-vb.h/2)}
+function zoom(f,cx,cy){const nw=Math.min(allVb.w,Math.max(allVb.w/60,vb.w*f)),r=nw/vb.w;cx=cx??vb.x+vb.w/2;cy=cy??vb.y+vb.h/2;
+ vb={x:cx-(cx-vb.x)*r,y:cy-(cy-vb.y)*r,w:nw,h:nw*R};clamp();draw()}
+const pt=ev=>{const p=svg.createSVGPoint();p.x=ev.clientX;p.y=ev.clientY;return p.matrixTransform(svg.getScreenCTM().inverse())};
+svg.addEventListener("wheel",ev=>{ev.preventDefault();const p=pt(ev);zoom(ev.deltaY<0?.8:1.25,p.x,p.y)},{passive:false});
+let drag=null,moved=false;
+svg.addEventListener("pointerdown",ev=>{drag={x:ev.clientX,y:ev.clientY,vb:{...vb}};moved=false;svg.setPointerCapture(ev.pointerId);svg.classList.add("drag")});
+svg.addEventListener("pointermove",ev=>{if(drag){const dx=ev.clientX-drag.x,dy=ev.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)>3)moved=true;const s=vb.w/svg.getBoundingClientRect().width;vb.x=drag.vb.x-dx*s;vb.y=drag.vb.y-dy*s;clamp();draw();hideTip();return}
+ const e=ev.target.d?ev.target:null;e?showTip(ev,e.d):hideTip()});
+svg.addEventListener("pointerup",ev=>{svg.classList.remove("drag");const tg=ev.target.d?ev.target:document.elementFromPoint(ev.clientX,ev.clientY);if(!moved&&tg&&tg.d)select(tg);else if(!moved)pickRegion(ev);drag=null});
+svg.addEventListener("pointerleave",hideTip);
+const tip=document.getElementById("tip");
+function showTip(ev,d){const r=box.getBoundingClientRect();tip.innerHTML=`<b>${esc(d.n||"(no name tagged)")}</b><span>${LABEL[d.c]}${d.ap?" · approximate location":""}</span>${d.x?`<div style="margin-top:4px;color:var(--ink)"><b style="display:inline;color:var(--dmg)">${d.x==="destroyed"?"Destroyed":"Damaged"}:</b> ${esc(d.xs)}</div>`:""}`;tip.style.display="block";
+ tip.style.left=Math.min(ev.clientX-r.left+12,r.width-tip.offsetWidth-6)+"px";tip.style.top=Math.max(ev.clientY-r.top-tip.offsetHeight-10,6)+"px"}
+function hideTip(){tip.style.display="none"}
+const OCCN=new Set(['Autonomous Republic of Crimea','Sevastopol','Donetsk','Luhansk']);
+const oname=n=>n==='Autonomous Republic of Crimea'?'Crimea':n;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function select(e){sel=e;const d=e.d,type={n:"node",w:"way",r:"relation"}[d.t];
+ document.getElementById("detail").innerHTML=`<b>${esc(d.n||"(no name tagged)")}</b>${LABEL[d.c]}${d.r?"<br>"+esc(oname(d.r))+(OCCN.has(d.r)?(d.r==="Donetsk"||d.r==="Luhansk"?" Oblast":"")+" · Ukraine, unlawfully occupied by Russia":(d.r==="Kyiv City"?"":" Oblast")):""}${d.x?`<br><b style="color:var(--dmg)">Documented as ${esc(d.x)}</b>${esc(d.xs)} · <a href="${esc(d.xu)}" target="_blank" rel="noopener">source</a>`:""}${d.a?"<br>"+esc(d.a):""}${d.h?"<br>Hours: "+esc(d.h):""}${d.ap?"<br>Approximate location (town or site centre); not an OpenStreetMap object":`<br>Last edited ${d.y} · <a href="https://www.openstreetmap.org/${type}/${d.id}" target="_blank" rel="noopener">OSM ${type} ${d.id}</a>`}${/^https?:/.test(d.w)?` · <a href="${esc(d.w)}" target="_blank" rel="noopener">website</a>`:""}`;draw()}
+function zoomTo(bb){const x0=X(bb[0]),x1=X(bb[1]),y0=Y(bb[3]),y1=Y(bb[2]),w=Math.max(x1-x0,(y1-y0)/R)*1.12;vb={x:(x0+x1)/2-w/2,y:(y0+y1)/2-w*R/2,w,h:w*R};clamp();draw()}
+function buildList(){const el=document.getElementById("oblasts");el.innerHTML="";const by={};DATA.forEach(d=>by[d.r||"(outside borders)"]=(by[d.r||"(outside borders)"]||0)+1);
+ const m=Math.max(...Object.values(by));Object.entries(by).sort((a,b)=>b[1]-a[1]).forEach(([n,c])=>{const b=document.createElement("button");b.className="leg";
+  b.innerHTML=`<span style="width:120px">${esc(oname(n))}</span><span class="bar"><i style="width:${c/m*100}%;background:var(--mute)"></i></span><span class="n">${c}</span>`;
+  if(bboxes[n])b.onclick=()=>{zoomTo(bboxes[n]);if(window.setRegion)setRegion(n)};el.appendChild(b)})}
+const dmax=Math.max(...Object.values(DMG.o).map(v=>v[1]+v[2]));
+function applyDmg(){dmgEls.forEach(o=>o.dm.setAttribute("fill-opacity",dmgOn&&o.n!=null?(.06+.62*Math.sqrt(o.n/dmax)).toFixed(3):0));tintEls.forEach(e=>e.style.display=(dmgOn||svOn)?"none":"");}
+(()=>{const el=document.getElementById("dmg"),V=Object.entries(DMG.o).sort((a,b)=>(b[1][1]+b[1][2])-(a[1][1]+a[1][2])),T=V.reduce((s,[,v])=>[s[0]+v[1],s[1]+v[2]],[0,0]),nm=DATA.filter(d=>d.x).length;
+ el.innerHTML=`<button class="leg" id="dmgbtn" aria-pressed="false" style="border:1px solid var(--line);border-radius:8px;padding:6px 8px;margin-bottom:8px"><span class="dot" style="background:var(--dmg);opacity:.55"></span><span style="flex:1">Shade oblasts by damaged + destroyed public libraries</span></button>
+ <div style="margin-bottom:8px;color:var(--mute);font-size:12px"><span class="sw"></span>${DATA.concat(EXTRA).filter(d=>d.x==="destroyed"&&d.c==="library").length} destroyed (solid ring) and <span class="sw" style="border-style:dashed"></span>${DATA.concat(EXTRA).filter(d=>d.x==="damaged"&&d.c==="library").length} damaged (dashed ring) libraries individually marked from news reports (${EXTRA.filter(d=>d.c==="library").length} of these are placed at an approximate town location and are not OSM objects; they are not counted in the totals above). The set is small: no facility-level public list has been matched yet. ${EXTRA.filter(d=>d.c==="church").length} damaged historic churches in Lviv and Odesa are also shown (grey, dashed ring, approximate locations).</div>
+ <div class="dmgrow" style="color:var(--mute);font-size:11px"><span>Official counts, ${esc(DMG.asof)}</span><span class="d">Destr.</span><span class="p">Damaged</span></div>`+
+ V.filter(([,v])=>v[1]+v[2]>0).map(([n,v])=>`<div class="dmgrow"><span>${esc(n==="Kyiv"?"Kyiv oblast + city":n)}${n==="Luhansk"||n==="Kherson"?" *":""}</span><span class="d">${v[1]}</span><span class="p">${v[2]}</span></div>`).join("")+
+ `<div class="dmgrow" style="border-top:1px solid var(--line);margin-top:3px;padding-top:3px;font-weight:600"><span>Total</span><span class="d">${T[0]}</span><span class="p">${T[1]}</span></div>
+ <div style="color:var(--mute);font-size:11.5px;margin-top:6px">Ministry of Culture figures for public libraries (not OSM objects; oblasts with no recorded damage are omitted). * Occupied in whole or part, so records are incomplete; Crimea and Sevastopol have no data. By September 2026 the Ministry reported 913 libraries destroyed or damaged nationwide (233 destroyed, 680 damaged), with Donetsk, Kharkiv and Kherson oblasts hardest hit; a per-oblast table for that date was not found. <a href="${esc(DMG.src)}" target="_blank" rel="noopener" style="color:var(--library)">Source table</a></div>`;
+ const b=document.getElementById("dmgbtn");b.onclick=()=>{dmgOn=!dmgOn;b.setAttribute("aria-pressed",dmgOn);b.classList.toggle("sel",dmgOn);b.style.background=dmgOn?"var(--grid)":"none";if(dmgOn&&svOn&&window.svOff)window.svOff();applyDmg()}})();
+
+(()=>{const el=document.getElementById("sv"),IK=Object.keys(SV.ind),ST=Object.keys(SV.stages).map(Number);let ind="damaged_all",st=ST[ST.length-1],timer=null;
+ const val=(k,ob,s)=>{const I=SV.ind[k],v=I.vals[ob];if(!v)return null;if(I.cum){for(let q=s;q>=1;q--)if(v[q]!=null)return{v:v[q],f:q}}else if(v[s]!=null)return{v:v[s],f:s};return null};
+ const fmt=n=>Number.isInteger(n)?n.toLocaleString("en"):String(n),ROM=s=>SV.stages[s].r;
+ el.innerHTML=`<button class="leg" id="svbtn" aria-pressed="false" style="border:1px solid var(--line);border-radius:8px;padding:6px 8px;margin-bottom:8px"><span class="dot" style="background:var(--sv);opacity:.6"></span><span style="flex:1">Shade oblasts by the National Library survey</span></button>
+ <div id="svbody" style="display:none"><select id="svind" style="width:100%;margin-bottom:6px;font:inherit;padding:4px;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:6px">${IK.map(k=>`<option value="${k}">${esc(SV.ind[k].l)}</option>`).join("")}</select>
+ <div style="display:flex;gap:6px;align-items:center"><button id="svplay" class="leg" style="width:auto;border:1px solid var(--line);border-radius:6px;padding:3px 8px">▶</button><input id="svr" type="range" min="1" max="${ST.length}" value="${st}" style="flex:1"></div>
+ <div id="svlab" style="font-size:12px;margin:4px 0;font-weight:600"></div><div id="svnat" style="font-size:11.5px;color:var(--mute);margin-bottom:6px"></div><div id="svtab"></div>
+ <div style="color:var(--mute);font-size:11.5px;margin-top:6px">Source: National Library of Ukraine named after Yaroslav the Wise, 17 quarterly stages of the study “Public libraries of Ukraine under Russian armed aggression” (<a href="https://oth.nlu.org.ua/?cat=8" target="_blank" rel="noopener" style="color:var(--library)">oth.nlu.org.ua</a>). Values are those stated in each article's text; the full per-oblast tables are PDF attachments not yet included, so blank means not stated, not zero. Cumulative indicators carry the last stated value forward (marked with the stage it comes from). Shading uses one fixed scale per indicator so stages are comparable. Crimea and Sevastopol are not covered; Luhansk enters the series in stage X (Sept 2024) and occupied areas are incomplete. * Ukrainian territory unlawfully occupied by Russia, in whole or part.</div></div>`;
+ function draw2(){const I=SV.ind[ind],S=SV.stages[st];document.getElementById("svlab").textContent=`Stage ${S.r} · data as of ${S.a} · published ${S.p}`;
+  const n=S.n;document.getElementById("svnat").innerHTML=`Nationwide at this stage: ${n.operating_libraries!=null?fmt(n.operating_libraries)+" of "+fmt(n.pre_war_libraries)+" libraries operating; ":""}${n.destroyed!=null?fmt(n.destroyed)+" buildings destroyed, "+fmt(n.partial)+" partially damaged, "+fmt(n.minor)+" minor damage. ":""}<a href="${S.u}" target="_blank" rel="noopener" style="color:var(--library)">Stage ${S.r} article</a>`;
+  const rows=Object.keys(I.vals).map(ob=>[ob,val(ind,ob,st)]).filter(r=>r[1]).sort((a,b)=>b[1].v-a[1].v);
+  document.getElementById("svtab").innerHTML=`<div class="dmgrow" style="color:var(--mute);font-size:11px"><span>${esc(I.l)} (${esc(I.u)})</span></div>`+(rows.length?rows.map(([ob,r])=>`<div class="dmgrow"><span>${esc(oname(ob))}${OCCN.has(ob)?" *":""}</span><span class="p" style="width:auto">${fmt(r.v)}${r.f!==st?` <span style="color:var(--mute);font-size:11px">(from ${ROM(r.f)})</span>`:""}</span></div>`).join(""):`<div style="color:var(--mute);font-size:12px">Not stated by oblast in this stage's article text.</div>`);
+  svEls.forEach(o=>{const r=svOn?val(ind,o.n,st):null;o.p.setAttribute("fill-opacity",r?(.06+.62*Math.sqrt(r.v/I.max)).toFixed(3):0)});if(window.svCursor)svCursor(svOn?st:ST.length);tintEls.forEach(e=>e.style.display=(dmgOn||svOn)?"none":"");commEls.forEach(e=>{if(e.firstChild)return;const c=e.c;const ti=document.createElementNS("http://www.w3.org/2000/svg","title");ti.textContent=`${c.n} community (${oname(c.o)}${OCCN.has(c.o)&&(c.o==="Donetsk"||c.o==="Luhansk")?" Oblast, Ukraine, unlawfully occupied by Russia":" Oblast"}): no library in the community, survey stage ${SV.stages[c.s].r}. Approximate location: community centre${c.rv?" (match to be verified)":""}.`;e.appendChild(ti);});commEls.forEach(e=>e.style.display=(svOn&&ind==="no_library_communities"&&e.c.s===st)?"":"none");const cn=COMM.filter(c=>c.s===st).length;document.getElementById("svnat").innerHTML+=(ind==="no_library_communities"&&cn?`<br>${cn} communities in this stage's list are marked with circles on the map (approximate community centres).`:"")}
+ window.svOff=()=>{svOn=false;stop();document.getElementById("svbtn").setAttribute("aria-pressed","false");document.getElementById("svbtn").classList.remove("sel");document.getElementById("svbtn").style.background="none";document.getElementById("svbody").style.display="none";draw2()};
+ function stop(){if(timer){clearInterval(timer);timer=null;document.getElementById("svplay").textContent="▶"}}
+ const b=document.getElementById("svbtn");b.onclick=()=>{svOn=!svOn;if(svOn&&dmgOn){document.getElementById("dmgbtn").click()}b.setAttribute("aria-pressed",svOn);b.classList.toggle("sel",svOn);b.style.background=svOn?"var(--grid)":"none";document.getElementById("svbody").style.display=svOn?"block":"none";if(!svOn)stop();draw2()};
+ document.getElementById("svind").onchange=e=>{ind=e.target.value;draw2()};
+ document.getElementById("svr").oninput=e=>{st=+e.target.value;draw2()};
+ document.getElementById("svplay").onclick=()=>{if(timer){stop();return}if(st>=ST.length)st=1;document.getElementById("svr").value=st;document.getElementById("svplay").textContent="❚❚";draw2();timer=setInterval(()=>{if(st>=ST.length){stop();return}st++;document.getElementById("svr").value=st;draw2()},900)};
+ window.svCur=()=>svOn?st:ST.length;window.svDraw=draw2;draw2()})();
+
+let regionSel=null;
+function inRings(rs,lo,la){let c=false;rs.forEach(r=>{for(let i=0,j=r.length-2;i<r.length;j=i,i+=2){const xi=r[i],yi=r[i+1],xj=r[j],yj=r[j+1];if((yi>la)!==(yj>la)&&lo<(xj-xi)*(la-yi)/(yj-yi)+xi)c=!c}});return c}
+function pickRegion(ev){const rc=svg.getBoundingClientRect(),sx=vb.x+(ev.clientX-rc.left)*vb.w/rc.width,sy=vb.y+(ev.clientY-rc.top)*vb.h/rc.height,lo=loMin+sx/(k*S),la=laMax-sy/S;
+ const n=Object.keys(RINGS).find(n=>inRings(RINGS[n],lo,la));if(window.setRegion)setRegion(n||null)}
+(()=>{const el=document.getElementById("rg"),T0=Date.parse("2022-05-31"),T1=Date.parse("2026-06-30"),ST=Object.keys(SV.stages).map(Number);let hi=null;
+ const COL={destroyed:"var(--dmg)",partial:"var(--sv)",minor:"var(--arts_centre)",equip_full:"var(--theatre)",funds_full:"var(--library)",staff_dismissed:"var(--mute)",damage_mln_uah:"var(--community_centre)"};
+ const NATK={destroyed:"destroyed",partial:"partial",minor:"minor",equip_full:"equip_full",funds_full:"funds_full",staff_dismissed:"dismissed_cumulative",damage_mln_uah:"damage_mln_uah_min"};
+ const fmt=n=>Number.isInteger(n)?n.toLocaleString("en"):String(n);
+ function series(k,ob){if(ob==null)return ST.map(s=>[s,SV.stages[s].n[NATK[k]]]).filter(p=>p[1]!=null);const v=(SV.ind[k].vals[ob]||{});return ST.filter(s=>v[s]!=null).map(s=>[s,v[s]])}
+ function chart(title,unit,lines){if(!lines.some(l=>l.pts.length))return `<div style="margin-bottom:8px;font-size:12px"><b>${esc(title)}</b> <span style="color:var(--mute)">: no values stated for this region</span></div>`;const W=262,H=92,L=30,Rr=6,Tp=6,B=16,all=lines.flatMap(l=>l.pts.map(p=>p[1])),mx=Math.max(...all,1)*1.08;
+  const px=s=>L+(Date.parse(SV.stages[s].a)-T0)/(T1-T0)*(W-L-Rr),py=v=>Tp+(1-v/mx)*(H-Tp-B);
+  let g=`<line x1="${L}" x2="${W-Rr}" y1="${py(0)}" y2="${py(0)}" stroke="var(--line)"/><text x="${L-3}" y="${Tp+4}" text-anchor="end" font-size="8.5" fill="var(--mute)">${fmt(Math.round(mx*10)/10)}</text><text x="${L-3}" y="${py(0)+3}" text-anchor="end" font-size="8.5" fill="var(--mute)">0</text>`;
+  [2022,2023,2024,2025,2026].forEach(y=>{const x=L+(Date.parse(y+"-01-01")-T0)/(T1-T0)*(W-L-Rr);if(x>=L&&x<=W-Rr)g+=`<line x1="${x}" x2="${x}" y1="${Tp}" y2="${py(0)}" stroke="var(--line)" stroke-dasharray="2 3"/><text x="${x+2}" y="${H-4}" font-size="8.5" fill="var(--mute)">${y}</text>`});
+  lines.forEach(l=>{if(!l.pts.length)return;g+=`<path d="${l.pts.map((p,i)=>(i?"L":"M")+px(p[0]).toFixed(1)+" "+py(p[1]).toFixed(1)).join("")}" fill="none" stroke="${l.c}" stroke-width="1.6"/>`+l.pts.map(p=>`<circle cx="${px(p[0]).toFixed(1)}" cy="${py(p[1]).toFixed(1)}" r="2" fill="${l.c}"><title>${esc(l.n)}: ${fmt(p[1])} · stage ${SV.stages[p[0]].r}, ${SV.stages[p[0]].a}</title></circle>`).join("")});
+  const lg=lines.length>1?`<div style="font-size:10.5px;color:var(--mute)">${lines.map(l=>`<span style="color:${l.c}">●</span> ${esc(l.n)} ${l.pts.length?fmt(l.pts[l.pts.length-1][1]):"–"}`).join(" &nbsp; ")}</div>`:`<div style="font-size:10.5px;color:var(--mute)">latest stated: ${lines[0].pts.length?fmt(lines[0].pts[lines[0].pts.length-1][1])+" (stage "+SV.stages[lines[0].pts[lines[0].pts.length-1][0]].r+")":"–"}</div>`;
+  return `<div style="margin-bottom:8px"><div style="font-size:12px;font-weight:600">${esc(title)} <span style="font-weight:400;color:var(--mute)">(${esc(unit)})</span></div><svg viewBox="0 0 ${W} ${H}" width="100%" data-l="${L}" data-w="${W-L-Rr}" data-tp="${Tp}" data-b="${py(0)}">${g}<rect class="tfut" x="${W-Rr}" y="${Tp}" width="0" height="${py(0)-Tp}" fill="var(--card)" opacity=".72" pointer-events="none"/><line class="tcur" x1="${W-Rr}" x2="${W-Rr}" y1="${Tp}" y2="${py(0)}" stroke="var(--ink)" stroke-width="1.2" pointer-events="none"/></svg>${lg}</div>`}
+ window.svCursor=s=>{const T0=Date.parse("2022-05-31"),T1=Date.parse("2026-06-30"),a=SV.stages[s].a;document.querySelectorAll("#rg svg[data-w]").forEach(v=>{const L=+v.dataset.l,w=+v.dataset.w,x=L+(Date.parse(a)-T0)/(T1-T0)*w,end=L+w;v.querySelector(".tcur").setAttribute("x1",x);v.querySelector(".tcur").setAttribute("x2",x);const f=v.querySelector(".tfut");f.setAttribute("x",x);f.setAttribute("width",Math.max(0,end-x))})};
+ window.setRegion=n=>{regionSel=n;if(hi){hi.remove();hi=null}if(n&&DS[n]){hi=mk("path",{d:DS[n],"fill-rule":"evenodd",fill:"none",stroke:css("ink"),"stroke-width":2.2,"vector-effect":"non-scaling-stroke","stroke-linejoin":"round","pointer-events":"none"},gB)}
+  const nm=n==null?"Ukraine (all)":oname(n)+(n==="Donetsk"||n==="Luhansk"?" Oblast":(n==="Kyiv City"||n==="Autonomous Republic of Crimea"||n==="Sevastopol"?"":" Oblast"));
+  document.getElementById("rgname").textContent=nm;
+  const occ=n&&OCCN.has(n),no=n!=null&&!Object.values(SV.ind).some(I=>I.vals[n]);
+  let h=`<div style="font-size:11.5px;color:var(--mute);margin-bottom:6px">${n==null?"Click a region on the map, or a row in the oblast list, to see its cumulative figures over time. Nationwide totals are shown here.":"Click another region, or empty sea, to change; <a href=\"#\" id=\"rgall\" style=\"color:var(--library)\">show nationwide</a>."}${occ?"<br><b>Ukraine, unlawfully occupied by Russia (in whole or part): survey records are incomplete.</b>":""}</div>`;
+  if(n!=null){const o=DMG.o[n==="Kyiv City"?"Kyiv":n],cnt=DATA.filter(d=>d.r===n).length;h+=`<div style="font-size:12px;margin-bottom:6px">${cnt.toLocaleString("en")} OSM objects in this region${o?`; Ministry of Culture count (${esc(DMG.asof)}): ${o[1]} libraries destroyed, ${o[2]} damaged${n==="Kyiv"||n==="Kyiv City"?" (Kyiv oblast and city combined)":""}`:""}.</div>`}
+  if(no){h+=`<div style="font-size:12px">No oblast-level values in the survey for this region (Crimea and Sevastopol are not covered; some oblasts report no damage).</div>`}
+  else{const s=k=>({n:SV.ind[k].l.split(" (")[0],pts:series(k,n),c:COL[k]});
+   h+=chart("Library buildings damaged, cumulative","libraries",[{n:"destroyed",pts:series("destroyed",n),c:COL.destroyed},{n:"partial",pts:series("partial",n),c:COL.partial},{n:"minor",pts:series("minor",n),c:COL.minor}]);
+   h+=chart("Total loss of equipment","libraries",[{n:"equipment",pts:series("equip_full",n),c:COL.equip_full}]);
+   h+=chart("Total loss of collections","libraries",[{n:"collections",pts:series("funds_full",n),c:COL.funds_full}]);
+   h+=chart("Staff dismissed since the invasion","persons",[{n:"dismissed",pts:series("staff_dismissed",n),c:COL.staff_dismissed}]);
+   h+=chart("Estimated damage, minimum","mln UAH",[{n:"damage",pts:series("damage_mln_uah",n),c:COL.damage_mln_uah}]);
+   h+=`<div style="font-size:11px;color:var(--mute)">Dots are values stated in each stage's article text; gaps mean not stated. National Library of Ukraine survey, stages I–XVII (<a href="https://oth.nlu.org.ua/?cat=8" target="_blank" rel="noopener" style="color:var(--library)">source</a>). Hover a dot for the stage and date.</div>`}
+  el.innerHTML=h;if(window.svCur)svCursor(window.svCur());const a=document.getElementById("rgall");if(a)a.onclick=e=>{e.preventDefault();setRegion(null)}};
+ setRegion(null)})();
+document.getElementById("zin").onclick=()=>zoom(.7);document.getElementById("zout").onclick=()=>zoom(1.4);
+document.getElementById("zall").onclick=()=>{vb={...allVb};draw()};
+document.getElementById("q").addEventListener("input",ev=>{query=ev.target.value.trim().toLowerCase();draw()});
+addEventListener("resize",draw);
+const cnt=c=>DATA.filter(d=>d.c===c).length+(c==="church"?EXTRA.filter(d=>d.c==="church").length:0),mx=Math.max(...CATS.map(c=>cnt(c[0])));
+const lg=document.getElementById("legend");
+CATS.forEach(([c,l])=>{const b=document.createElement("button");b.className="leg";b.setAttribute("aria-pressed","true");
+ b.innerHTML=`<span class="dot" style="background:var(--${c})"></span><span style="width:130px">${l}</span><span class="bar"><i style="width:${cnt(c)/mx*100}%;background:var(--${c})"></i></span><span class="n">${cnt(c)}</span>`;
+ b.onclick=()=>{on.has(c)?on.delete(c):on.add(c);b.classList.toggle("off",!on.has(c));b.setAttribute("aria-pressed",on.has(c));draw()};lg.appendChild(b)});
+const pc=f=>Math.round(DATA.filter(f).length/DATA.length*100)+"%";
+document.getElementById("stats").innerHTML=[["Objects",DATA.length],["Have a name",pc(d=>d.n)],["Have opening hours",pc(d=>d.h)],["Have an address",pc(d=>d.a)],["Mapped as buildings (ways)",pc(d=>d.t!=="n")]].map(([a,b])=>`<div class="stat"><span>${a}</span><span>${b}</span></div>`).join("");
+(()=>{const by={};DATA.forEach(d=>{if(d.r)by[d.r]=1});const n=Object.keys(by).length;document.getElementById("sub").textContent="Libraries individually reported destroyed or damaged (rings; approximate where marked), Ministry of Culture oblast counts, and 17 quarterly stages of the National Library of Ukraine survey, with cumulative charts per region. Drag to pan, scroll to zoom."})();
+document.getElementById("snap").textContent=META.ts;
+const ys={};DATA.forEach(d=>ys[d.y]=(ys[d.y]||0)+1);const yk=Object.keys(ys).map(Number).sort((a,b)=>a-b),ym=Math.max(...Object.values(ys)),ysv=document.getElementById("yr"),bw=270/yk.length;
+yk.forEach((y,i)=>{const h=ys[y]/ym*58;mk("rect",{x:i*bw+2,y:70-h,width:bw-4,height:h,rx:2,fill:"var(--mute)",opacity:.7},ysv);
+ const t=mk("text",{x:i*bw+bw/2,y:84,"text-anchor":"middle"},ysv);t.textContent=String(y).slice(2);
+ const v=mk("text",{x:i*bw+bw/2,y:66-h,"text-anchor":"middle"},ysv);v.textContent=ys[y]});
+draw();
+fetch("borders.json").then(r=>r.json()).then(drawBorders).catch(()=>{document.getElementById("sub").textContent+=" (Borders failed to load.)"});
+}).catch(e=>{document.getElementById("sub").textContent="Could not load the data files: "+e.message});
+</script>
+<script>const _t=setInterval(()=>{if(!document.getElementById("svplay"))return;clearInterval(_t);setTimeout(()=>{try{
+const bar=document.getElementById("tlbar"),play=document.getElementById("svplay"),row=play.parentNode,lab=document.getElementById("svlab"),btn=document.getElementById("svbtn");
+bar.appendChild(lab);bar.appendChild(row);lab.style.fontSize="13px";
+const sync=()=>{bar.style.display=btn.getAttribute("aria-pressed")==="true"?"block":"none"};
+new MutationObserver(sync).observe(btn,{attributes:true,attributeFilter:["aria-pressed"]});
+if(btn.getAttribute("aria-pressed")!=="true")btn.click();sync()}catch(e){console.error(e)}},1500)},300)</script></body>
+</html>
